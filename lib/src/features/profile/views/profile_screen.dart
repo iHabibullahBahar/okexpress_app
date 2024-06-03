@@ -118,6 +118,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 gradient: LinearGradient(
                   colors: [zGraySwatch[400]!, zGraySwatch[400]!],
                 ),
+                title: "Make a Call to Support",
+                onPressed: () {},
+              ),
+              Gap(20),
+              CustomButton(
+                height: 50,
+                radius: 10,
+                gradient: LinearGradient(
+                  colors: [zGraySwatch[400]!, zGraySwatch[400]!],
+                ),
                 title: "Logout",
                 onPressed: () {
                   AuthController.instance.signOut();

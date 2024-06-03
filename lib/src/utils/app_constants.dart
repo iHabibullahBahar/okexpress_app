@@ -45,3 +45,4 @@ const String zAuthTokenValidTill = 'authTokenValidTill';
 const String zEmail = 'email';
 const String zUserId = 'userId';
 const String zUserFullName = 'userFullName';
+const String zPassword = 'password';
