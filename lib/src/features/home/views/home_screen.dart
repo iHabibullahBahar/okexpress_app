@@ -16,11 +16,20 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   AuthController authController = Get.put(AuthController());
+  ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    scrollController.addListener(() {
+      if (scrollController.position.maxScrollExtent ==
+          scrollController.offset) {
+        HomeController.instance.isHomeLoading.value == false
+            ? HomeController.instance.retriveBookingData(isRefresh: false)
+            : null;
+      }
+    });
   }
 
   @override
@@ -67,12 +76,26 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Padding(
           padding: const EdgeInsets.all(Dimensions.zDefaultPadding),
           child: ListView(
+            controller: scrollController,
             children: [
               Obx(() {
                 if (HomeController.instance.isHomeLoading.value) {
                   return Center(
                     child: CircularProgressIndicator(
                       color: zPrimaryColor,
+                    ),
+                  );
+                } else if (HomeController.instance.bookingModel.data!.isEmpty) {
+                  return Container(
+                    height: Get.height * 0.6,
+                    child: Center(
+                      child: Text(
+                        'No results found',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          color: zTextColor,
+                        ),
+                      ),
                     ),
                   );
                 } else {
@@ -85,6 +108,22 @@ class _HomeScreenState extends State<HomeScreen> {
                           bookingData:
                               HomeController.instance.bookingModel.data![i],
                         ),
+                      Obx(() {
+                        if (HomeController.instance.isMoreLoading.value) {
+                          return Column(
+                            children: [
+                              const Center(
+                                child: CircularProgressIndicator(
+                                  color: zPrimaryColor,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                            ],
+                          );
+                        } else {
+                          return const SizedBox();
+                        }
+                      }),
                     ],
                   );
                 }

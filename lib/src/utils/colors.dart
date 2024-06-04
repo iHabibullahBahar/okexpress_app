@@ -120,7 +120,7 @@ const MaterialColor zErrorSwatch = MaterialColor(
 );
 
 const zPrimaryGradientTopToBottom = LinearGradient(
-  colors: [Color(0xFFFF6654), Color(0xFFEF7922)],
+  colors: [Colors.blue, Colors.blueAccent],
   begin: Alignment.topCenter,
   end: Alignment.bottomCenter,
 );

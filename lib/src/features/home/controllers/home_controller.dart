@@ -22,9 +22,24 @@ class HomeController extends GetxController {
 
   BookingModel bookingModel = BookingModel();
   RxBool isHomeLoading = false.obs;
-  retriveBookingData() async {
+  RxBool isMoreLoading = false.obs;
+  int page = 1;
+  int totalPages = 1;
+  retriveBookingData({bool isRefresh = true}) async {
+    if (isRefresh) {
+      page = 1;
+      isHomeLoading.value = true;
+    } else {
+      page++;
+      if (page > totalPages) {
+        page--;
+        return;
+      }
+      isMoreLoading.value = true;
+    }
     try {
       int userId = await LocalStorageController.instance.getInt(zUserId);
+
       var requestBody = {
         "driver_id": userId,
         "status": selectedIndex.value == 0
@@ -32,14 +47,21 @@ class HomeController extends GetxController {
             : selectedIndex.value == 1
                 ? "picked"
                 : "delivered",
-        "page": 1,
+        "page": page,
       };
-      isHomeLoading.value = true;
       var response = await ApiServices.instance.getResponse(
           requestBody: requestBody, endpoint: zBookingDriverEndpoint);
       var decoded = jsonDecode(response.body);
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        bookingModel = BookingModel.fromJson(decoded);
+        if (isRefresh) {
+          bookingModel = BookingModel.fromJson(decoded);
+        } else {
+          isHomeLoading.value = true;
+          bookingModel.data!.addAll(BookingModel.fromJson(decoded).data!);
+          isMoreLoading.value = false;
+        }
+        print('Booking data: ${bookingModel.data!.length}');
+        totalPages = bookingModel.totalpage!;
         isHomeLoading.value = false;
       } else {
         CustomSnackBarService()

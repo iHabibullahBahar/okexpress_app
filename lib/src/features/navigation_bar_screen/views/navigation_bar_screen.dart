@@ -67,7 +67,10 @@ class _NavigationBarScreenState extends State<NavigationBarScreen> {
                     _selectedIndex = index;
                   });
                   if (_selectedIndex == 0) {
+                    HomeController.instance.selectedIndex.value = 0;
+                    HomeController.instance.retriveBookingData();
                   } else if (_selectedIndex == 1) {
+                    LogController.instance.retriveLogData();
                   } else if (_selectedIndex == 2) {
                     AuthController.instance.retriveUserData();
                   }
