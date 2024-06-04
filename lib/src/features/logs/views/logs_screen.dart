@@ -22,11 +22,20 @@ class LogsScreen extends StatefulWidget {
 class _LogsScreenState extends State<LogsScreen> {
   AuthController authController = Get.put(AuthController());
   RxBool isSelecting = false.obs;
+  ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    scrollController.addListener(() {
+      if (scrollController.position.maxScrollExtent ==
+          scrollController.offset) {
+        LogController.instance.isLogFetching.value == false
+            ? LogController.instance.retriveLogData(isRefresh: false)
+            : null;
+      }
+    });
   }
 
   @override
@@ -37,6 +46,7 @@ class _LogsScreenState extends State<LogsScreen> {
         child: Padding(
           padding: const EdgeInsets.all(Dimensions.zDefaultPadding),
           child: ListView(
+            controller: scrollController,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -162,7 +172,23 @@ class _LogsScreenState extends State<LogsScreen> {
                               ),
                             ),
                           ),
-                        )
+                        ),
+                      Obx(() {
+                        if (LogController.instance.isMoreDataLoading.value) {
+                          return Column(
+                            children: [
+                              const Center(
+                                child: CircularProgressIndicator(
+                                  color: zPrimaryColor,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                            ],
+                          );
+                        } else {
+                          return const SizedBox();
+                        }
+                      })
                     ],
                   );
                 }

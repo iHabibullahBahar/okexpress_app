@@ -5,6 +5,7 @@ import 'package:okexpress/src/common/widgets/custom_button.dart';
 import 'package:okexpress/src/features/home/models/booking_model.dart';
 import 'package:okexpress/src/utils/colors.dart';
 import 'package:okexpress/src/utils/dimensions.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PackageDetailsScreen extends StatelessWidget {
   Data bookingData;
@@ -332,7 +333,11 @@ class PackageDetailsScreen extends StatelessWidget {
                     ),
                     height: 50,
                     radius: 10,
-                    onPressed: () {},
+                    onPressed: () async {
+                      ///Url launch for pickup direction
+                      !await launchUrl(Uri.parse(
+                          "https://www.google.com/maps/search/?api=1&query=${37.785834000000},${-122.406417000000}"));
+                    },
                   ),
                 ),
                 Spacer(),
@@ -347,7 +352,10 @@ class PackageDetailsScreen extends StatelessWidget {
                     ),
                     height: 50,
                     radius: 10,
-                    onPressed: () {},
+                    onPressed: () async {
+                      !await launchUrl(Uri.parse(
+                          "https://www.google.com/maps/search/?api=1&query=${37.785834000000},${-122.406417000000}"));
+                    },
                   ),
                 ),
               ],

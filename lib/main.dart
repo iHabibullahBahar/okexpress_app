@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import 'package:okexpress/global.dart';
 import 'package:okexpress/src/common/services/custom_snackbar_service.dart';
 import 'package:okexpress/src/features/splash_screen/view/splash_screen.dart';
+import 'package:okexpress/src/helper/api_services.dart';
+import 'package:okexpress/src/utils/api_urls.dart';
 import 'package:okexpress/src/utils/app_constants.dart';
 
 void main() async {
@@ -112,22 +114,19 @@ class MyApp extends StatelessWidget {
       return;
     }
 
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-
     ///Start a timer to get the location every 3 seconds
     _timer = Timer.periodic(const Duration(seconds: 3), (timer) async {
       _currentPosition = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
 
       ///TODO: Send the driver location to the server
-      // if (GlobalStorage.instance.isLogged) {
-      //   var response = await ApiServices.instance.getResponse(requestBody: {
-      //     "driver_id": GlobalStorage.instance.userId,
-      //     "lat": _currentPosition!.latitude,
-      //     "lng": _currentPosition!.longitude
-      //   }, endpoint: zSendDriverLocationEndpoint);
-      // }
+      if (GlobalStorage.instance.isLogged) {
+        var response = await ApiServices.instance.getResponse(requestBody: {
+          "driver_id": GlobalStorage.instance.userId,
+          "lat": _currentPosition!.latitude,
+          "lng": _currentPosition!.longitude
+        }, endpoint: zSendDriverLocationEndpoint);
+      }
     });
   }
 }

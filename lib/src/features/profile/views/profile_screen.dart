@@ -6,6 +6,7 @@ import 'package:okexpress/src/common/widgets/custom_button.dart';
 import 'package:okexpress/src/features/auth/controllers/auth_controller.dart';
 import 'package:okexpress/src/utils/colors.dart';
 import 'package:okexpress/src/utils/dimensions.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -135,11 +136,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               CustomButton(
                 height: 50,
                 radius: 10,
-                gradient: LinearGradient(
-                  colors: [zGraySwatch[400]!, zGraySwatch[400]!],
-                ),
+                gradient: zPrimaryGradientLeftToRight,
                 title: "Make a Call to Support",
-                onPressed: () {},
+                onPressed: () async {
+                  ///TODO: Add support number here
+                  !await launchUrl(Uri.parse("tel:+1234567890"))
+                      ? ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Could make a call to support!"),
+                          ),
+                        )
+                      : null;
+                },
               ),
               Gap(20),
               CustomButton(

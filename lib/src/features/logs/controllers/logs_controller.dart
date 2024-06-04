@@ -22,19 +22,41 @@ class LogController extends GetxController {
     retriveLogData();
   }
 
+  int page = 1;
+  int totalPages = 1;
+  RxBool isMoreDataLoading = false.obs;
   LogModel logModel = LogModel();
-  retriveLogData() async {
+  retriveLogData({bool isRefresh = true}) async {
+    if (isRefresh) {
+      page = 1;
+      totalPages = 1;
+      isLogFetching.value = true;
+    } else {
+      page++;
+      if (page > totalPages) {
+        page--;
+        return;
+      }
+      isMoreDataLoading.value = true;
+    }
     try {
       int userId = await LocalStorageController.instance.getInt(zUserId);
       var requestBody = {
         "driver_id": userId,
       };
-      isLogFetching.value = true;
       var response = await ApiServices.instance
           .getResponse(requestBody: requestBody, endpoint: zShowLogsEndpoint);
       var decoded = jsonDecode(response.body);
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        logModel = LogModel.fromJson(decoded);
+        if (isRefresh) {
+          logModel = LogModel.fromJson(decoded);
+        } else {
+          isLogFetching.value = true;
+          logModel.data!.addAll(LogModel.fromJson(decoded).data!);
+          isMoreDataLoading.value = false;
+        }
+        print('Log data: ${logModel.data!.length}');
+        totalPages = logModel.totalpage!;
         isLogFetching.value = false;
       } else {
         CustomSnackBarService()
