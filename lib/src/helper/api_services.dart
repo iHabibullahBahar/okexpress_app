@@ -16,18 +16,10 @@ class ApiServices extends GetxController {
     print(url);
     final Map<String, String> headers;
     String authToken = '';
-    if (isAuthToken) {
-      // authToken = await LocalStorageController.instance.getString(zAuthToken);
-      headers = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      };
-    } else {
-      headers = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      };
-    }
+    headers = {
+      'Accept': '*/*',
+      'Content-Type': 'text/plain',
+    };
 
     try {
       print(jsonEncode(requestBody));

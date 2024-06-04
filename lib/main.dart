@@ -1,17 +1,25 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:okexpress/global.dart';
-import 'package:okexpress/src/features/navigation_bar_screen/views/navigation_bar_screen.dart';
+import 'package:okexpress/src/common/services/custom_snackbar_service.dart';
+import 'package:okexpress/src/features/splash_screen/view/splash_screen.dart';
+import 'package:okexpress/src/helper/api_services.dart';
+import 'package:okexpress/src/utils/api_urls.dart';
 import 'package:okexpress/src/utils/app_constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Get.put(Global());
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+  Position? _currentPosition;
+  late Timer _timer;
 
   // This widget is the root of your application.
   @override
@@ -26,13 +34,36 @@ class MyApp extends StatelessWidget {
         );
       },
       //home: NavigationBarScreen(),
-      //home: SplashScreen(),
+      home: SplashScreen(),
       //home: OnboardingScreen(),
-      home: NavigationBarScreen(),
+      //home: NavigationBarScreen(),
 
       ///home: InformationScreen(),
       //home: SignInScreen(),
-      onInit: () async {},
+      onInit: () async {
+        bool serviceEnabled;
+        LocationPermission permission;
+        serviceEnabled = await Geolocator.isLocationServiceEnabled();
+        if (!serviceEnabled) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text(
+                  'Location services are disabled. Please enable the services')));
+        }
+        permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied) {
+          permission = await Geolocator.requestPermission();
+          if (permission == LocationPermission.denied) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('Location permissions are denied')));
+          }
+        }
+        if (permission == LocationPermission.deniedForever) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text(
+                  'Location permissions are permanently denied, we cannot request permissions.')));
+        }
+        _initLocationService();
+      },
 
       /// These delegates make sure that the localization data for the proper language is loaded.
       supportedLocales: const [
@@ -51,5 +82,54 @@ class MyApp extends StatelessWidget {
         hoverColor: Colors.transparent,
       ),
     );
+  }
+
+  Future<void> _initLocationService() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      CustomSnackBarService().showErrorSnackBar(
+          message:
+              'Location services are disabled. Please enable the services');
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        CustomSnackBarService()
+            .showErrorSnackBar(message: 'Location permissions are denied');
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      CustomSnackBarService().showErrorSnackBar(
+        message:
+            'Location permissions are permanently denied, we cannot request permissions.',
+      );
+      return;
+    }
+
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    print(position.latitude);
+    print(position.longitude);
+
+    ///Start a timer to get the location every 3 seconds
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) async {
+      _currentPosition = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      if (GlobalStorage.instance.isLogged) {
+        var response = await ApiServices.instance.getResponse(requestBody: {
+          "driver_id": GlobalStorage.instance.userId,
+          "lat": _currentPosition!.latitude,
+          "lng": _currentPosition!.longitude
+        }, endpoint: zSendDriverLocationEndpoint);
+      }
+    });
   }
 }

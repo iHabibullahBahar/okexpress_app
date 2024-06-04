@@ -1,4 +1,12 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
+import 'package:okexpress/src/common/contollers/local_storage_controller.dart';
+import 'package:okexpress/src/common/services/custom_snackbar_service.dart';
+import 'package:okexpress/src/features/home/models/booking_model.dart';
+import 'package:okexpress/src/helper/api_services.dart';
+import 'package:okexpress/src/utils/api_urls.dart';
+import 'package:okexpress/src/utils/app_constants.dart';
 
 class HomeController extends GetxController {
   static HomeController get instance => Get.find();
@@ -9,5 +17,37 @@ class HomeController extends GetxController {
   void onInit() {
     // TODO: implement onInit
     super.onInit();
+    retriveBookingData();
+  }
+
+  BookingModel bookingModel = BookingModel();
+  RxBool isHomeLoading = false.obs;
+  retriveBookingData() async {
+    try {
+      int userId = await LocalStorageController.instance.getInt(zUserId);
+      var requestBody = {
+        "driver_id": userId,
+        "status": selectedIndex.value == 0
+            ? "assigned"
+            : selectedIndex.value == 1
+                ? "picked"
+                : "delivered",
+        "page": 1,
+      };
+      isHomeLoading.value = true;
+      var response = await ApiServices.instance.getResponse(
+          requestBody: requestBody, endpoint: zBookingDriverEndpoint);
+      var decoded = jsonDecode(response.body);
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        bookingModel = BookingModel.fromJson(decoded);
+        isHomeLoading.value = false;
+      } else {
+        CustomSnackBarService()
+            .showErrorSnackBar(message: "Something went wrong");
+      }
+    } catch (e) {
+      print('Error retriving booking data: $e');
+    }
+    isHomeLoading.value = false;
   }
 }

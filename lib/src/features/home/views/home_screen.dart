@@ -39,20 +39,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 title1: "Assigned",
                 title2: "Picked",
                 title3: "Delivered",
-                onTap1: () {
+                onTap1: () async {
                   setState(() {
                     HomeController.instance.selectedIndex.value = 0;
                   });
+                  await HomeController.instance.retriveBookingData();
                 },
-                onTap2: () {
+                onTap2: () async {
                   setState(() {
                     HomeController.instance.selectedIndex.value = 1;
                   });
+                  await HomeController.instance.retriveBookingData();
                 },
-                onTap3: () {
+                onTap3: () async {
                   setState(() {
                     HomeController.instance.selectedIndex.value = 2;
                   });
+                  await HomeController.instance.retriveBookingData();
                 },
               ),
             ),
@@ -65,7 +68,27 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.all(Dimensions.zDefaultPadding),
           child: ListView(
             children: [
-              for (int i = 0; i < 10; i++) PackageInfoWidget(),
+              Obx(() {
+                if (HomeController.instance.isHomeLoading.value) {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: zPrimaryColor,
+                    ),
+                  );
+                } else {
+                  return Column(
+                    children: [
+                      for (int i = 0;
+                          i < HomeController.instance.bookingModel.data!.length;
+                          i++)
+                        PackageInfoWidget(
+                          bookingData:
+                              HomeController.instance.bookingModel.data![i],
+                        ),
+                    ],
+                  );
+                }
+              }),
             ],
           ),
         ),

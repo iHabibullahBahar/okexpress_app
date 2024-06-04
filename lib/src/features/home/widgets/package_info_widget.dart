@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:okexpress/src/features/home/models/booking_model.dart';
 import 'package:okexpress/src/features/home/views/package_deatils_screen.dart';
 import 'package:okexpress/src/utils/colors.dart';
 import 'package:okexpress/src/utils/dimensions.dart';
 
 class PackageInfoWidget extends StatelessWidget {
-  const PackageInfoWidget({super.key});
+  Data bookingData;
+  PackageInfoWidget({required this.bookingData});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +17,11 @@ class PackageInfoWidget extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 10),
       child: InkWell(
         onTap: () {
-          Get.to(() => PackageDetailsScreen());
+          Get.to(
+            () => PackageDetailsScreen(
+              bookingData: bookingData,
+            ),
+          );
         },
         child: Container(
           decoration: BoxDecoration(
@@ -28,7 +35,7 @@ class PackageInfoWidget extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      "ID: 123456",
+                      "Slug: ${bookingData.slug}",
                       style: TextStyle(
                         color: zGraySwatch[500],
                         fontWeight: FontWeight.w600,
@@ -46,7 +53,11 @@ class PackageInfoWidget extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          "12/12/2021",
+                          //dd/MM/yyyy
+                          (DateFormat('dd/MM/yyyy')
+                              .format(
+                                  DateTime.parse(bookingData.assignedDatetime!))
+                              .toString()),
                           style: TextStyle(
                             color: zGraySwatch[500],
                             fontSize: 12,
@@ -63,7 +74,7 @@ class PackageInfoWidget extends StatelessWidget {
                     Container(
                       width: Get.width - 4 * Dimensions.zDefaultPadding,
                       child: Text(
-                        "Service name: Same day delivery",
+                        bookingData.service!.type!,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -85,7 +96,7 @@ class PackageInfoWidget extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          "Truck",
+                          bookingData.vehicleType!.type!,
                           style: TextStyle(
                             color: zTextColor,
                             fontWeight: FontWeight.w500,
@@ -103,7 +114,9 @@ class PackageInfoWidget extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 8),
                         child: Text(
-                          "Inside GTA",
+                          bookingData.isLocationInside == 0
+                              ? "Inside GTA"
+                              : "Outside GTA",
                           style: TextStyle(
                             color: zTextColor,
                             fontWeight: FontWeight.w500,

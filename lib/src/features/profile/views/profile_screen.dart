@@ -42,71 +42,91 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            height: 100,
-                            width: 100,
-                            decoration: BoxDecoration(
-                              color: zGraySwatch[100],
-                              borderRadius: BorderRadius.circular(100),
+                      Obx(() {
+                        if (AuthController.instance.isSignInLoading.value) {
+                          return Center(
+                            child: CircularProgressIndicator(
+                              color: zPrimaryColor,
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(100),
-                                child: FancyShimmerImage(
-                                  imageUrl: "",
-                                  height: 100,
-                                  width: 100,
-                                  errorWidget: Icon(
-                                    Icons.person,
-                                    size: 50,
-                                    color: zGraySwatch[500],
+                          );
+                        } else {
+                          return Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    height: 100,
+                                    width: 100,
+                                    decoration: BoxDecoration(
+                                      color: zGraySwatch[100],
+                                      borderRadius: BorderRadius.circular(100),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(100),
+                                        child: FancyShimmerImage(
+                                          imageUrl: AuthController.instance
+                                                  .profileModel.photo ??
+                                              '',
+                                          height: 100,
+                                          width: 100,
+                                          errorWidget: Icon(
+                                            Icons.person,
+                                            size: 50,
+                                            color: zGraySwatch[500],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
+                                ],
+                              ),
+                              Gap(10),
+                              Text(
+                                AuthController.instance.profileModel.name ??
+                                    "Driver",
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Gap(10),
-                      Text(
-                        "John Doe",
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Gap(5),
-                      Text(
-                        "bahar@example.com",
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: zGraySwatch[500],
-                        ),
-                      ),
-                      Gap(10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Driver ID: ",
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: zGraySwatch[500],
-                            ),
-                          ),
-                          Text(
-                            "15562435521",
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: zTextColor,
-                                fontWeight: FontWeight.w600),
-                          ),
-                        ],
-                      ),
+                              Gap(5),
+                              Text(
+                                AuthController.instance.profileModel.email ??
+                                    "Email",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: zGraySwatch[500],
+                                ),
+                              ),
+                              Gap(10),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Driver ID: ",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: zGraySwatch[500],
+                                    ),
+                                  ),
+                                  Text(
+                                    AuthController.instance.profileModel.id
+                                        .toString(),
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color: zTextColor,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        }
+                      })
                     ],
                   ),
                 ),

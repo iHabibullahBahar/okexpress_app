@@ -3,8 +3,8 @@ class ProfileModel {
   String? name;
   String? photo;
   String? email;
-  double? lat;
-  double? lng;
+  String? lat;
+  String? lng;
   String? lastLogin;
 
   ProfileModel(
@@ -21,8 +21,8 @@ class ProfileModel {
     name = json['name'];
     photo = json['photo'];
     email = json['email'];
-    lat = json['lat']?.toDouble();
-    lng = json['lng']?.toDouble();
+    lat = json['lat'];
+    lng = json['lng'];
     lastLogin = json['lastLogin'];
   }
 

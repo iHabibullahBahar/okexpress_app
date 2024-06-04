@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:okexpress/src/common/contollers/common_controller.dart';
 import 'package:okexpress/src/features/auth/controllers/auth_controller.dart';
 import 'package:okexpress/src/features/home/controllers/home_controller.dart';
 import 'package:okexpress/src/features/home/views/home_screen.dart';
@@ -26,6 +27,7 @@ class _NavigationBarScreenState extends State<NavigationBarScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    Get.put(CommonController());
     Get.put(HomeController());
     Get.put(LogController());
     Get.put(AuthController());
@@ -66,7 +68,9 @@ class _NavigationBarScreenState extends State<NavigationBarScreen> {
                   });
                   if (_selectedIndex == 0) {
                   } else if (_selectedIndex == 1) {
-                  } else if (_selectedIndex == 2) {}
+                  } else if (_selectedIndex == 2) {
+                    AuthController.instance.retriveUserData();
+                  }
                 },
                 child: Container(
                   width: 50,

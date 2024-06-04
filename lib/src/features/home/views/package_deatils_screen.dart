@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:okexpress/src/common/widgets/custom_button.dart';
+import 'package:okexpress/src/features/home/models/booking_model.dart';
 import 'package:okexpress/src/utils/colors.dart';
 import 'package:okexpress/src/utils/dimensions.dart';
 
 class PackageDetailsScreen extends StatelessWidget {
-  const PackageDetailsScreen({super.key});
+  Data bookingData;
+  PackageDetailsScreen({required this.bookingData});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +18,7 @@ class PackageDetailsScreen extends StatelessWidget {
         backgroundColor: zBackgroundColor,
         elevation: 0,
         title: Text(
-          "Package Details",
+          "Booking Details",
           style: TextStyle(
             color: zTextColor,
           ),
@@ -40,7 +42,7 @@ class PackageDetailsScreen extends StatelessWidget {
                       vertical: 18,
                     ),
                     child: Text(
-                      "CS: Assigned",
+                      "CS: ${bookingData.status}",
                       style: TextStyle(
                         color: zGraySwatch[500],
                         fontWeight: FontWeight.w600,
@@ -50,7 +52,9 @@ class PackageDetailsScreen extends StatelessWidget {
                 ),
                 Spacer(),
                 CustomButton(
-                  title: "Change to Picked",
+                  title: bookingData.status == "assigned"
+                      ? "Change to Picked"
+                      : "Change to Delivered",
                   height: 50,
                   textStyle: TextStyle(
                     color: zWhiteColor,

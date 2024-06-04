@@ -25,7 +25,7 @@ class AuthController extends GetxController {
   ///Sign In With Email and Password
   RxBool isSignInLoading = false.obs;
   ProfileModel profileModel = ProfileModel();
-  Future<bool> signInWithEmailAndPassword({bool isFromProfile = false}) async {
+  Future<bool> signInWithEmailAndPassword() async {
     try {
       isSignInLoading.value = true;
       var requestBody = {
@@ -36,27 +36,23 @@ class AuthController extends GetxController {
           .getResponse(requestBody: requestBody, endpoint: zSignInEndpoint);
       var decoded = jsonDecode(response.body);
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        if (!isFromProfile) {
-          LocalStorageController.instance.setBool(zIsLoggedIn, true);
-          LocalStorageController.instance
-              .setString(zEmail, emailController.text);
-          LocalStorageController.instance
-              .setString(zPassword, passwordController.text);
-          GlobalStorage.instance.isLogged = true;
-          emailController.clear();
-          passwordController.clear();
-          isSignInLoading.value = false;
-          Get.offAll(() => NavigationBarScreen());
-        }
-        //await validateUser();
+        LocalStorageController.instance.setBool(zIsLoggedIn, true);
+        LocalStorageController.instance.setString(zEmail, emailController.text);
+        LocalStorageController.instance
+            .setString(zPassword, passwordController.text);
+        LocalStorageController.instance.setInt(zUserId, decoded['id']);
+        GlobalStorage.instance.isLogged = true;
+        GlobalStorage.instance.userId = decoded['id'];
+        emailController.clear();
+        passwordController.clear();
+        isSignInLoading.value = false;
         profileModel = ProfileModel.fromJson(decoded);
+        Get.offAll(() => NavigationBarScreen());
         isSignInLoading.value = false;
         return true;
       } else {
-        if (!isFromProfile) {
-          CustomSnackBarService()
-              .showErrorSnackBar(message: "Invalid email or password");
-        }
+        CustomSnackBarService()
+            .showErrorSnackBar(message: "Invalid email or password");
       }
     } catch (e) {
       print('Error signing in with email and password: $e');
@@ -65,10 +61,31 @@ class AuthController extends GetxController {
     return false;
   }
 
-  ///Apple Sign In
-  Future<bool> signInWithApple() async {
-    ///TODO: Implement Apple Sign In after getting the Apple Developer Account
-    return true;
+  Future<bool> retriveUserData() async {
+    try {
+      isSignInLoading.value = true;
+      var email = await LocalStorageController.instance.getString(zEmail);
+      var password = await LocalStorageController.instance.getString(zPassword);
+      var requestBody = {
+        "email": email,
+        "password": password,
+      };
+      var response = await ApiServices.instance
+          .getResponse(requestBody: requestBody, endpoint: zSignInEndpoint);
+      var decoded = jsonDecode(response.body);
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        profileModel = ProfileModel.fromJson(decoded);
+        isSignInLoading.value = false;
+        return true;
+      } else {
+        CustomSnackBarService()
+            .showErrorSnackBar(message: "Something went wrong");
+      }
+    } catch (e) {
+      print('Error signing in with email and password: $e');
+    }
+    isSignInLoading.value = false;
+    return false;
   }
 
   ///Sign Out
@@ -77,6 +94,7 @@ class AuthController extends GetxController {
       await LocalStorageController.instance.clearInstance(zIsLoggedIn);
       await LocalStorageController.instance.clearInstance(zEmail);
       await LocalStorageController.instance.clearInstance(zPassword);
+      await LocalStorageController.instance.clearInstance(zUserId);
       Get.offAll(() => const SignInScreen());
     } catch (e) {
       print('Error signing out: $e');
