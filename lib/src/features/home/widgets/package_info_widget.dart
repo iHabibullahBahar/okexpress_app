@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:okexpress/src/common/services/custom_snackbar_service.dart';
 import 'package:okexpress/src/features/home/models/booking_model.dart';
 import 'package:okexpress/src/features/home/views/package_deatils_screen.dart';
 import 'package:okexpress/src/utils/colors.dart';
@@ -17,6 +18,10 @@ class PackageInfoWidget extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 10),
       child: InkWell(
         onTap: () {
+          CustomSnackBarService().showErrorSnackBar(
+              message:
+                  'Demo service is activated. Please enable the production mode');
+
           Get.to(
             () => PackageDetailsScreen(
               bookingData: bookingData,

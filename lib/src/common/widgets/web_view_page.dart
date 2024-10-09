@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:okexpress/src/common/services/custom_snackbar_service.dart';
 import 'package:okexpress/src/utils/colors.dart';
 
@@ -29,7 +28,6 @@ class WebViewPage extends StatefulWidget {
 
 class _WebViewPageState extends State<WebViewPage> {
   double _progress = 0;
-  late InAppWebViewController inAppWebViewController;
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +38,6 @@ class _WebViewPageState extends State<WebViewPage> {
     Uint8List bodyBytes = Uint8List.fromList(utf8.encode(jsonBody));
     return WillPopScope(
       onWillPop: () async {
-        var isLastPage = await inAppWebViewController.canGoBack();
-        if (isLastPage) {
-          inAppWebViewController.goBack();
-          return false;
-        }
         return true;
       },
       child: Scaffold(
@@ -67,58 +60,7 @@ class _WebViewPageState extends State<WebViewPage> {
         ),
         body: SafeArea(
           child: Stack(
-            children: [
-              InAppWebView(
-                initialUrlRequest: URLRequest(
-                  url: WebUri(
-                    widget.url,
-                  ),
-                  method: widget.method,
-                  headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ${widget.authToken}',
-                    'code': widget.refCode
-                  },
-                  body: widget.method == 'POST' ? bodyBytes : null,
-                ),
-                onWebViewCreated: (InAppWebViewController controller) {
-                  inAppWebViewController = controller;
-                },
-                onLoadStop: (controller, url) async {
-                  // Evaluate JavaScript to fetch and print JSON responses
-                  var jsonResponse = await controller.evaluateJavascript(
-                    source: "document.body.innerText",
-                  );
-                  if (jsonResponse != null) {
-                    print("JSON Response from $url: $jsonResponse");
-                    var decoded = jsonDecode(jsonResponse);
-                    print(decoded['success']);
-                    print(decoded['message']);
-                    if (decoded['success'] == true) {
-                      if (decoded['message'] == "Payment Successful!") {
-                        CustomSnackBarService().showSuccessSnackBar(
-                          message: "Payment Successful!",
-                        );
-                      }
-                    }
-                  }
-                },
-                onProgressChanged:
-                    (InAppWebViewController controller, int progress) {
-                  setState(() {
-                    _progress = progress / 100;
-                  });
-                },
-              ),
-              _progress < 1
-                  ? LinearProgressIndicator(
-                      color: zPrimaryColor,
-                      value: _progress,
-                      backgroundColor: zPrimaryColor.withOpacity(0.2),
-                    )
-                  : SizedBox()
-            ],
+            children: [SizedBox()],
           ),
         ),
       ),

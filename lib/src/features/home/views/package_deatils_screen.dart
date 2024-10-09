@@ -1,8 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:okexpress/src/common/services/custom_snackbar_service.dart';
 import 'package:okexpress/src/common/widgets/custom_button.dart';
 import 'package:okexpress/src/features/home/models/booking_model.dart';
+import 'package:okexpress/src/helper/api_services.dart';
+import 'package:okexpress/src/utils/api_urls.dart';
 import 'package:okexpress/src/utils/colors.dart';
 import 'package:okexpress/src/utils/dimensions.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -13,6 +19,14 @@ class PackageDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // var decoded = null;
+    // () async {
+    //   var requestBody = {"slug": bookingData.slug};
+    //   var response = await ApiServices.instance.getResponse(
+    //       requestBody: requestBody, endpoint: zBookingDriverEndpoint);
+    //   decoded = jsonDecode(response.body);
+    //   print("Response: $decoded");
+    // };
     return Scaffold(
       backgroundColor: zBackgroundColor,
       appBar: AppBar(
@@ -43,7 +57,7 @@ class PackageDetailsScreen extends StatelessWidget {
                       vertical: 18,
                     ),
                     child: Text(
-                      "CS: ${bookingData.status}",
+                      "CS: ${bookingData.status}".toUpperCase(),
                       style: TextStyle(
                         color: zGraySwatch[500],
                         fontWeight: FontWeight.w600,
@@ -51,7 +65,7 @@ class PackageDetailsScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 CustomButton(
                   title: bookingData.status == "assigned"
                       ? "Change to Picked"
@@ -63,7 +77,12 @@ class PackageDetailsScreen extends StatelessWidget {
                     fontSize: 14,
                   ),
                   radius: 10,
-                  onPressed: () {},
+                  onPressed: () {
+                    CustomSnackBarService().showErrorSnackBar(
+                        message:
+                            'Driver activity is disabled. Please enable the services');
+                    return;
+                  },
                 ),
               ],
             ),
@@ -80,7 +99,7 @@ class PackageDetailsScreen extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          "ID: 123456",
+                          "Slug: ${bookingData.slug}",
                           style: TextStyle(
                             color: zGraySwatch[500],
                             fontWeight: FontWeight.w600,
@@ -90,7 +109,7 @@ class PackageDetailsScreen extends StatelessWidget {
                         Row(
                           children: [
                             Text(
-                              "Assigned on: ",
+                              "",
                               style: TextStyle(
                                 color: zGraySwatch[500],
                                 fontSize: 12,
@@ -98,7 +117,8 @@ class PackageDetailsScreen extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              "12/12/2021",
+                              DateFormat('yyyy-MM-dd').format(DateTime.parse(
+                                  bookingData.assignedDatetime!)),
                               style: TextStyle(
                                 color: zGraySwatch[500],
                                 fontSize: 12,
@@ -115,7 +135,7 @@ class PackageDetailsScreen extends StatelessWidget {
                         Container(
                           width: Get.width - 4 * Dimensions.zDefaultPadding,
                           child: Text(
-                            "Service name: Same day delivery",
+                            "Service name: ${bookingData.service!.type}",
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
